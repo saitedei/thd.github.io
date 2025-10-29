@@ -1,2 +1,110 @@
-# thd.github.io
-test
+import { useState } from 'react';
+
+export default function ReconciliationPage() {
+  const [rejectCount, setRejectCount] = useState(0);
+  const [isReconciled, setIsReconciled] = useState(false);
+  const [heartIcon, setHeartIcon] = useState('❤️');
+  const [message, setMessage] = useState('');
+
+  // 拒绝按钮的提示信息
+  const rejectMessages = [
+    "再考虑一下好吗？",
+    "真的不再想想吗？",
+    "我会等你的...",
+    "我的心好痛...",
+    "最后一次机会了...",
+    "😭 好吧，我尊重你的决定"
+  ];
+
+  // 爱心图标集合
+  const heartIcons = [
+    "❤️", "💔", "💓", "💞", "💕", "💖", 
+    "💗", "💘", "💙", "💚", "💛", "🧡", "💜"
+  ];
+
+  const handleReject = () => {
+    if (rejectCount < rejectMessages.length) {
+      const newMessage = rejectMessages[rejectCount];
+      setMessage(newMessage);
+      
+      // 如果是最后一次拒绝，显示特殊消息
+      if (rejectCount === rejectMessages.length - 1) {
+        setHeartIcon("💔");
+      } else {
+        // 随机选择一个爱心图标（排除当前的和心碎的）
+        const availableIcons = heartIcons.filter(icon => 
+          icon !== heartIcon && icon !== "💔"
+        );
+        const randomIndex = Math.floor(Math.random() * availableIcons.length);
+        setHeartIcon(availableIcons[randomIndex]);
+      }
+      
+      setRejectCount(rejectCount + 1);
+      
+      // 3秒后清除消息
+      setTimeout(() => {
+        if (!isReconciled) setMessage('');
+      }, 3000);
+    }
+  };
+
+  const handleReconcile = () => {
+    setIsReconciled(true);
+    setMessage("太棒了！我们和好啦！🎉");
+    setHeartIcon("🥰");
+    
+    // 3秒后清除消息
+    setTimeout(() => {
+      setMessage('');
+    }, 3000);
+  };
+
+  return (
+    <div className={`min-h-screen flex flex-col items-center justify-center p-4 transition-colors duration-500 ${
+      isReconciled ? 'bg-pink-100' : 'bg-gray-50'
+    }`}>
+      <div className="text-center">
+        <div className="text-9xl mb-6 transition-transform duration-300 hover:scale-110">
+          {heartIcon}
+        </div>
+        
+        <h1 className="text-3xl font-bold mb-8 text-gray-800">
+          我们和好吧，好吗？
+        </h1>
+        
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <button
+            onClick={handleReconcile}
+            disabled={isReconciled}
+            className={`px-8 py-4 rounded-full text-xl font-bold transition-all ${
+              isReconciled 
+                ? 'bg-gray-300 cursor-not-allowed' 
+                : 'bg-pink-500 hover:bg-pink-600 text-white shadow-lg hover:shadow-xl'
+            }`}
+          >
+            ❤️和好❤️
+          </button>
+          
+          <button
+            onClick={handleReject}
+            disabled={isReconciled || rejectCount >= rejectMessages.length}
+            className={`px-8 py-4 rounded-full text-xl font-bold transition-all ${
+              isReconciled || rejectCount >= rejectMessages.length
+                ? 'bg-gray-300 cursor-not-allowed' 
+                : 'bg-gray-200 hover:bg-gray-300 text-gray-800 shadow-md hover:shadow-lg'
+            }`}
+          >
+            不要
+          </button>
+        </div>
+        
+        {message && (
+          <div className="mt-6 p-4 bg-black bg-opacity-70 text-white rounded-lg max-w-md mx-auto animate-fadeIn">
+            {message}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
